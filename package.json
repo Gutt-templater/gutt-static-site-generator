@@ -1,0 +1,24 @@
+{
+  "name": "gutt-node-stringifier",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/*.js --reporter dot"
+  },
+  "keywords": [
+    "gutt",
+    "nodejs",
+    "stringifier"
+  ],
+  "author": {
+    "name": "Aleksei Chikin",
+    "email": "mail@makingoff.name"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "mocha": "^3.2.0"
+  }
+}
