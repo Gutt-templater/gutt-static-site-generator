@@ -153,8 +153,8 @@ describe ('Nodejs number functions', function () {
   it ('num_rand', function () {
     var template =
       '<component>' +
-      '<variable name={rand} value={ num_rand() } />' +
-      '<if test={(rand >= 0 && rand <= 1) }>' +
+      '<variable name={$rand} value={ num_rand() } />' +
+      '<if test={($rand >= 0 && $rand <= 1) }>' +
       'good' +
       '</if>' +
       '</component>'

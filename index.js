@@ -2,6 +2,7 @@ var path = require('path')
 var parser = require('gutt')
 var logicHandler = require('./logic-handler')
 var Tag = require('gutt/tokens/tag')
+var treeToString = require('./tree-to-string')
 var reservedTags = [
   'apply-attribute',
   'attribute',
@@ -68,7 +69,7 @@ function attrsHandler (fragment, attrs, ctx) {
     attrValueHandle(fragment.id, attr, ctx)
   })
 
-  fragment.firstChild ? handleTemplate(fragment.firstChild, ctx) : ''
+  fragment.firstChild ? handleTemplate(fragment.firstChild, ctx) : false
 }
 
 function linkNodeWithAttrFragment (node, fragment) {
@@ -89,9 +90,8 @@ function setMapCurrentFragmentNode (attrFragment, node) {
 }
 
 function handleDefaultTag (node, ctx) {
-  var children = ''
+  var children = []
   var attr
-  var attrs = []
   var fragment = new Tag('fragment')
 
   tagAttrs[fragment.id] = {}
@@ -99,28 +99,16 @@ function handleDefaultTag (node, ctx) {
   linkNodeWithAttrFragment(node, fragment)
 
   if (!node.isSingle) {
-    children = node.firstChild ? handleTemplate(node.firstChild, ctx) : ''
+    children = node.firstChild ? handleTemplate(node.firstChild, ctx) : []
   }
 
   attrsHandler(fragment, node.attrs, ctx)
 
-  for (attr in tagAttrs[fragment.id]) {
-    if (Object.prototype.hasOwnProperty.call(tagAttrs[fragment.id], attr)) {
-      attrs.push(' ' + attr + (tagAttrs[fragment.id][attr] !== false ? '="' + tagAttrs[fragment.id][attr] + '"' : ''))
-    }
+  if (node.isSingle || ~singleTags.indexOf(node.name) || node.name === '!DOCTYPE') {
+    return [{tag: node.name, attrs: tagAttrs[fragment.id]}]
   }
 
-  attrs = attrs.join('')
-
-  if (node.name === '!DOCTYPE') {
-    return '<' + node.name + attrs + '>'
-  }
-
-  if (node.isSingle || ~singleTags.indexOf(node.name)) {
-    return '<' + node.name + attrs + ' />'
-  }
-
-  return '<' + node.name + attrs + '>' + children + '</' + node.name + '>'
+  return [{tag: node.name, attrs: tagAttrs[fragment.id], children: children}]
 }
 
 function handleTagAttribute (node, ctx) {
@@ -147,7 +135,7 @@ function handleTagAttribute (node, ctx) {
 
   appendNodeToAttrFragment(attrFragment, clonedNode, false)
 
-  return ''
+  return []
 }
 
 function handleTagAttributeApply (node) {
@@ -180,7 +168,7 @@ function handleTagAttributeApply (node) {
 
   tagAttrs[fragment.id][name] = value
 
-  return ''
+  return false
 }
 
 function handleParam (node, ctx) {
@@ -208,7 +196,7 @@ function handleParam (node, ctx) {
     setStateFieldValue(ctx.state, params.name, handleNode(params.value, ctx))
   }
 
-  return ''
+  return []
 }
 
 function getParentTagNode (node) {
@@ -222,15 +210,15 @@ function getParentTagNode (node) {
 function handleIfStatement (node, ctx) {
   var params = extractValuesFromAttrs(node.attrs, ['test'])
 
-  if (!node.firstChild) return ''
+  if (!node.firstChild) return []
 
   var test = handleNode(params.test, ctx)
 
   if ((typeof test === 'string' && test !== '0' && test !== 'false') || test) {
-    return node.firstChild ? handleTemplate(node.firstChild, ctx) : ''
+    return node.firstChild ? handleTemplate(node.firstChild, ctx) : []
   }
 
-  return ''
+  return []
 }
 
 function setStateFieldValue (state, field, value) {
@@ -250,10 +238,10 @@ function handleForEachStatement (node, ctx) {
   var key
   var fromStatement = handleNode(params.from, ctx)
   var keyStatement
-  var content = ''
+  var content = []
   var eachStatement
 
-  if (!node.firstChild) return ''
+  if (!node.firstChild) return []
 
   if (params.key) {
     keyStatement = handleNode(params.key, ctx)
@@ -266,7 +254,7 @@ function handleForEachStatement (node, ctx) {
       }
 
       setStateFieldValue(ctx.state, params.item, fromStatement[key])
-      content += node.firstChild ? handleTemplate(node.firstChild, ctx) : ''
+      content = content.concat(node.firstChild ? handleTemplate(node.firstChild, ctx) : [])
     }
   }
 
@@ -300,18 +288,31 @@ function appendNodeToAttrFragment (attrFragment, node, isSetNodeAsCurrentNodeAtF
 
 function handleImportStatement (node, ctx) {
   var params = extractValuesFromAttrs(node.attrs, ['name', 'from'])
+  var name = handleNode(params.name, ctx)
+  var from = handleNode(params.from, ctx)
   var componentPath
+  var includedTree
 
-  if (!~params.name.value.indexOf('-')) {
+  if (!~name.indexOf('-')) {
     throw new ParseError('Component name must contain dash (`-`) in the name', {
       line: params.name.line,
       column: params.name.column
     })
   }
 
-  componentPath = path.resolve((ctx.filePath ? path.dirname(ctx.filePath) : __dirname), handleNode(params.from, ctx))
+  componentPath = path.resolve((ctx.filePath ? path.dirname(ctx.filePath) : __dirname), from)
 
-  importedComponents[params.name.value] = parser.parseFile(componentPath).stringifyWith(stringifier)
+  includedTree = parser.parseFile(componentPath)
+
+  importedComponents[name] = stringifier.apply(includedTree, [
+    includedTree.result,
+    includedTree.source,
+    includedTree.filePath,
+    includedTree.rootPath,
+    true
+  ])
+
+  return []
 }
 
 function handleComponent (node, ctx) {
@@ -324,12 +325,14 @@ function handleComponent (node, ctx) {
   tagAttrs[fragment.id] = {}
 
   if (!node.isSingle) {
-    children = node.firstChild ? handleTemplate(node.firstChild, ctx) : ''
+    children = node.firstChild ? handleTemplate(node.firstChild, ctx) : []
   }
 
   attrsHandler(fragment, node.attrs, ctx)
 
-  return importedComponents[node.name](tagAttrs[fragment.id], children)
+  var result = importedComponents[node.name](tagAttrs[fragment.id], children)
+
+  return result
 }
 
 function handleVariable (node, ctx) {
@@ -351,7 +354,7 @@ function handleVariable (node, ctx) {
 
   setStateFieldValue(ctx.state, params.name, handleNode(params.value, ctx))
 
-  return ''
+  return []
 }
 
 function handleSwitchStatement (node, ctx) {
@@ -376,7 +379,7 @@ function handleSwitchStatement (node, ctx) {
     nextSibling = nextSibling.nextSibling
   }
 
-  return ''
+  return []
 }
 
 function handleCaseStatement (node, ctx) {
@@ -400,7 +403,7 @@ function handleCaseStatement (node, ctx) {
   if ((typeof test === 'string' && test !== '0' && test !== 'false') || test) {
     return {
       test: true,
-      children: node.firstChild ? handleTemplate(node.firstChild, ctx) : ''
+      children: node.firstChild ? handleTemplate(node.firstChild, ctx) : []
     }
   }
 
@@ -414,7 +417,17 @@ function handleDefaultStatement (node, ctx) {
 
   setSwitchMarkerHasDefault(node)
 
-  return node.firstChild ? handleTemplate(node.firstChild, ctx) : ''
+  return node.firstChild ? handleTemplate(node.firstChild, ctx) : []
+}
+
+function handleTemplateStatement (node, ctx) {
+  var params = extractValuesFromAttrs(node.attrs, ['name'])
+
+  if (node.firstChild) {
+    setStateFieldValue(ctx.state, params.name, handleTemplate(node.firstChild, ctx))
+  }
+
+  return []
 }
 
 function handleTag (node, ctx) {
@@ -443,6 +456,9 @@ function handleTag (node, ctx) {
     case 'switch':
       return handleSwitchStatement(node, ctx)
 
+    case 'template':
+      return handleTemplateStatement(node, ctx)
+
     default:
       if (typeof importedComponents[node.name] !== 'undefined') {
         return handleComponent(node, ctx)
@@ -453,7 +469,7 @@ function handleTag (node, ctx) {
 }
 
 function handleComment (node) {
-  return '<!--' + node.value + '-->'
+  return [{comment: node.value}]
 }
 
 function handleText (node) {
@@ -464,7 +480,7 @@ function handleText (node) {
     })
   }
 
-  return node.text
+  return [{text: node.text}]
 }
 
 function handleString (node) {
@@ -472,7 +488,13 @@ function handleString (node) {
 }
 
 function logicNodeHandler (node, ctx) {
-  return logicHandler(node.expr, ctx)
+  var result = logicHandler(node.expr, ctx)
+
+  if (typeof result === 'object') {
+    return result
+  }
+
+  return [{text: result}]
 }
 
 function scriptNodeHandler (node) {
@@ -502,20 +524,21 @@ function handleTemplate (node, ctx) {
   var buffer = []
 
   while (node) {
-    buffer.push(handleNode(node, ctx))
+    buffer = buffer.concat(handleNode(node, ctx))
 
     if (!node.nextSibling) break;
 
     node = node.nextSibling
   }
 
-  return buffer.join('')
+  return buffer
 }
 
-function stringifier (template, source, filePath) {
+function stringifier (template, source, filePath, rootPath, returnObject) {
   return function (data, children) {
     var state
     var key
+    var tree
 
     if (typeof data !== 'object') {
       state = data
@@ -531,11 +554,13 @@ function stringifier (template, source, filePath) {
       }
     }
 
-    return handleTemplate(template, {
+    tree = handleTemplate(template, {
       state: state,
       children: children,
       filePath: filePath
-    }).trim()
+    })
+
+    return returnObject ? tree : treeToString(tree).trim()
   }
 }
 

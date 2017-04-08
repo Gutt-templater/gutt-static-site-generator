@@ -133,6 +133,12 @@ function handleFunction (tree, ctx) {
       return str
     case 'str_pad':
       return strPad.apply(null, params)
+    case 'str_pad_left':
+      return strPad.apply(null, params.concat([STRPADLEFT]))
+    case 'str_pad_right':
+      return strPad.apply(null, params.concat([STRPADRIGHT]))
+    case 'str_pad_both':
+      return strPad.apply(null, params.concat([STRPADBOTH]))
     case 'str_upfirst':
       return params[0].split(/[\s\n\t]+/).map(function (item) {
         return item.substr(0, 1).toUpperCase() + item.substr(1).toLowerCase()
@@ -377,6 +383,8 @@ function expression (tree, ctx) {
       if (typeof tree.value === 'boolean') return tree.value
 
       if (tree.value === 'children') return ctx.children
+
+      if (typeof ctx[tree.value] === 'object') return ctx[tree.value]
 
       str = ctx.state[tree.value]
 
