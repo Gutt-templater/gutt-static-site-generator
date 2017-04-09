@@ -469,8 +469,7 @@ function logicHandler (node, ctx) {
   var value
 
   if (node.expr.type === 'isset') {
-    value = expression(node.expr.value, ctx)
-    return (typeof value !== 'undefined' ? value : "")
+    return typeof expression(node.expr.value, ctx) !== 'undefined'
   }
 
   return expression(node.expr, ctx)
