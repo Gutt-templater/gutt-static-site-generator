@@ -148,7 +148,7 @@ function handleTagAttributeApply (node) {
     if (attr.name === 'value') value = attr.value
   })
 
-  if (typeof value === 'undefined') {
+  if (typeof name === 'undefined') {
     throw new ParseError('<attribute /> must contain `name`-attribute', {
       line: node.line,
       column: node.column
@@ -214,7 +214,7 @@ function handleIfStatement (node, ctx) {
 
   var test = handleNode(params.test, ctx)
 
-  if ((typeof test === 'string' && test !== '0' && test !== 'false') || test) {
+  if ((typeof test === 'string' && test !== '0' && test !== 'false' && test.length) || test) {
     return node.firstChild ? handleTemplate(node.firstChild, ctx) : []
   }
 
@@ -367,7 +367,7 @@ function handleSwitchStatement (node, ctx) {
     if (nextSibling.type === 'tag' && nextSibling.name === 'case') {
       value = handleCaseStatement(nextSibling, ctx)
 
-      if (value.test) {
+      if ((typeof value.test === 'string' && value.test !== '0' && value.test !== 'false' && value.test.length) || value.test) {
         return value.children
       }
     }
@@ -498,7 +498,7 @@ function logicNodeHandler (node, ctx) {
 }
 
 function scriptNodeHandler (node) {
-  return '<script ' + node.attrs + '>' + node.text + '</script>'
+  return [{script: true, attrs: node.attrs, text: node.text}]
 }
 
 function handleNode (node, ctx) {

@@ -378,8 +378,6 @@ function expression (tree, ctx) {
 
   switch (tree.type) {
     case 'var':
-      if (typeof consts[tree.value] !== 'undefined') return consts[tree.value]
-
       if (typeof tree.value === 'boolean') return tree.value
 
       if (tree.value === 'children') return ctx.children
@@ -393,9 +391,10 @@ function expression (tree, ctx) {
       })
 
       return str
+    case 'const':
+      return consts[tree.value]
     case 'str':
       return expression(tree.value, ctx)
-
     case 'num':
       return Number(tree.value)
     case 'leftshift':
