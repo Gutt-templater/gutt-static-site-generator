@@ -374,7 +374,13 @@ function expression (tree, ctx) {
   var str = ''
   var keys
 
-  if (typeof tree === 'string') return tree.replace(/\\'/g, '\'').replace(/\\"/g, '"')
+  if (typeof tree === 'string') return tree
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, '\t')
+    .replace(/\\s/g, '\s')
+    .replace(/\\'/g, '\'')
+    .replace(/\\"/g, '"')
+
 
   switch (tree.type) {
     case 'var':
