@@ -1,9 +1,17 @@
+var logicAttrs = ['readonly', 'selected', 'checked', 'disabled', 'autofocus', 'required', 'multiple', 'autoplay', 'controls', 'loop', 'muted']
+
 function attrsToString (attrs) {
   var result = []
 
   for (attr in attrs) {
     if (Object.prototype.hasOwnProperty.call(attrs, attr)) {
-      result.push(' ' + attr + (attrs[attr] !== false ? '="' + attrs[attr] + '"' : ''))
+      if (~logicAttrs.indexOf(attr)) {
+        if (attrs[attr] !== false) {
+          result.push(' ' + attr)
+        }
+      } else {
+        result.push(' ' + attr + (attrs[attr] !== false ? '="' + attrs[attr] + '"' : ''))
+      }
     }
   }
 
