@@ -309,6 +309,8 @@ function handleFunction (tree, ctx) {
             arr.push(src[i])
 
       return arr
+    case 'arr_join':
+      return params[0].join(params[1] ? params[1] : '')
     case 'num_int':
       return parseInt(params[0], 10)
     case 'num_float':

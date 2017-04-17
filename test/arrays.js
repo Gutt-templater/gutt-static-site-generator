@@ -284,4 +284,14 @@ describe ('Nodejs array functions', function () {
 
     return parse(template).should.equal('f')
   })
+
+  it ('arr_join', function () {
+    var template =
+      '<component>' +
+      '<variable name={$arr}  value={[1, 2, 3, 4, 5, 6, 7] } />' +
+      '{ arr_join($arr, " ") }' +
+      '</component>'
+
+    return parse(template).should.equal('1 2 3 4 5 6 7')
+  })
 })
