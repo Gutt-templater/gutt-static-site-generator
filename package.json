@@ -25,6 +25,6 @@
   },
   "repository": "https://github.com/makingoff/gutt-node-stringifier",
   "dependencies": {
-    "gutt": "0.0.5"
+    "gutt": "0.0.7"
   }
 }
