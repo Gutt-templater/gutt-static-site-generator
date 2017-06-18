@@ -1,6 +1,8 @@
 {
   "name": "gutt-node-stringifier",
-  "version": "0.0.5",
+  "title": "Gutt nodejs stringifier",
+  "CLISupport": false,
+  "version": "0.0.6",
   "description": "",
   "main": "index.js",
   "scripts": {
