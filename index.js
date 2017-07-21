@@ -58,9 +58,9 @@ function extractValuesFromAttrs (attrs, fields) {
 function attrValueHandle (id, attr, ctx) {
   if (attr.name) {
     tagAttrs[id][handleNode(attr.name, ctx)] =
-      (attr.value !== null ? handleNode(attr.value, ctx) : false)
+      (attr.value !== null ? handleNode(attr.value, ctx) : null)
   } else {
-    tagAttrs[id]['"' + handleNode(attr.value, ctx) + '"'] = false
+    tagAttrs[id]['"' + handleNode(attr.value, ctx) + '"'] = null
   }
 }
 
