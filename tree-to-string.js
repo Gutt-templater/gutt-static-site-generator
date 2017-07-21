@@ -10,7 +10,7 @@ function attrsToString (attrs) {
           result.push(' ' + attr)
         }
       } else {
-        result.push(' ' + attr + (attrs[attr] !== false ? '="' + attrs[attr] + '"' : ''))
+        result.push(' ' + attr + (attrs[attr] !== null ? '="' + attrs[attr] + '"' : ''))
       }
     }
   }
