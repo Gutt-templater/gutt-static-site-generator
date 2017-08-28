@@ -488,7 +488,7 @@ function handleString (node) {
 }
 
 function logicNodeHandler (node, ctx) {
-  var result = logicHandler(node.expr, ctx)
+  var result = logicHandler(node, ctx)
 
   if (typeof result === 'object') {
     return result
