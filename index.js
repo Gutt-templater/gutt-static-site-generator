@@ -430,8 +430,19 @@ function handleTemplateStatement (node, ctx) {
   return []
 }
 
+function handleInlineSvg (node, ctx) {
+  var params = extractValuesFromAttrs(node.attrs, ['src'])
+  var dirname = ctx.filePath ? path.dirname(ctx.filePath) : __dirname
+  var svg = parser.parseFile(path.resolve(dirname, params.src.value))
+
+  return handleTemplate(svg.result)
+}
+
 function handleTag (node, ctx) {
   switch (node.name) {
+    case 'inline-svg':
+      return handleInlineSvg(node, ctx)
+
     case 'param':
       return handleParam(node, ctx)
 
