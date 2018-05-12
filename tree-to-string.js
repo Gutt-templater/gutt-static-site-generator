@@ -26,8 +26,8 @@ module.exports = function treeToString (tree) {
 
     if (typeof item.script !== 'undefined') {
       return (
-        '<script' + (item.attrs.length ? ' ': '') + item.attrs + '>' +
-        item.text + '</script>'
+        '<script' + attrsToString(item.attrs) + '>' +
+        item.body.str + '</script>'
       )
     }
 

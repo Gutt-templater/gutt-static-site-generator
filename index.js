@@ -508,8 +508,14 @@ function logicNodeHandler (node, ctx) {
   return [{text: result}]
 }
 
-function scriptNodeHandler (node) {
-  return [{script: true, attrs: node.attrs, text: node.text}]
+function scriptNodeHandler (node, ctx) {
+  var attrs = {}
+
+  node.attrs.forEach(function (attr) {
+    attrs[handleNode(attr.name, ctx)] = attr.value !== null ? handleNode(attr.value, ctx) : null
+  })
+
+  return [{script: true, attrs: attrs, body: node.body}]
 }
 
 function handleNode (node, ctx) {
@@ -527,7 +533,7 @@ function handleNode (node, ctx) {
     case 'logic-node':
       return logicNodeHandler(node, ctx)
     case 'script':
-      return scriptNodeHandler(node)
+      return scriptNodeHandler(node, ctx)
   }
 }
 
