@@ -2,7 +2,7 @@
   "name": "gutt-static-site-generator",
   "title": "Gutt static site generator",
   "CLISupport": false,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,6 @@
   },
   "repository": "https://github.com/makingoff/gutt-static-site-generator",
   "dependencies": {
-    "gutt": "0.2.0"
+    "gutt": "0.2.1"
   }
 }

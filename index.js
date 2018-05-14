@@ -309,6 +309,7 @@ function handleImportStatement (node, ctx) {
     includedTree.source,
     includedTree.filePath,
     includedTree.rootPath,
+    includedTree.params,
     true
   ])
 
@@ -551,7 +552,7 @@ function handleTemplate (node, ctx) {
   return buffer
 }
 
-function stringifier (template, source, filePath, rootPath, returnObject) {
+function stringifier (template, source, filePath, rootPath, params, returnObject) {
   return function (data, children) {
     var state
     var key
@@ -574,7 +575,9 @@ function stringifier (template, source, filePath, rootPath, returnObject) {
     tree = handleTemplate(template, {
       state: state,
       children: children,
-      filePath: filePath
+      filePath: filePath,
+      rootPath: rootPath,
+      params: params
     })
 
     return returnObject ? tree : treeToString(tree).trim()
