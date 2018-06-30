@@ -337,6 +337,12 @@ function handleFunction (tree, ctx) {
       return Math.random()
     case 'num_sqrt':
       return Math.sqrt(params[0])
+    case 'classes':
+      var preparedClasses = params.filter(function (className) {
+        return Boolean(className)
+      })
+
+      return preparedClasses.join(' ')
   }
 }
 

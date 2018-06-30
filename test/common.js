@@ -653,4 +653,17 @@ describe ('Nodejs stringifier common functions', function () {
 
     return parse(template).should.equal('20')
   })
+
+  it ('classes helper ', function () {
+    var template = '<div class={classes("block", "element")}></div>'
+    parse(template).should.equal('<div class="block element"></div>')
+
+    template = '<div class={classes("block", $param)}></div>'
+    parse(template).should.equal('<div class="block"></div>')
+
+    template =
+      '<variable name={$class} value="element" />' +
+      '<div class={classes("block", $class)}></div>'
+    parse(template).should.equal('<div class="block element"></div>')
+  })
 })
