@@ -380,7 +380,6 @@ function handleArray (source, ctx) {
 
 function expression (tree, ctx) {
   var str = ''
-  var keys
 
   if (typeof tree === 'string') return tree
     .replace(/\\n/g, '\n')
@@ -482,8 +481,6 @@ function expression (tree, ctx) {
 }
 
 function logicHandler (node, ctx) {
-  var value
-
   if (node.expr.type === 'isset') {
     return typeof expression(node.expr.value, ctx) !== 'undefined'
   }

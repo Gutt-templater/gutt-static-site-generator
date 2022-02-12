@@ -302,7 +302,7 @@ function handleImportStatement (node, ctx) {
 
   componentPath = path.resolve((ctx.filePath ? path.dirname(ctx.filePath) : __dirname), from)
 
-  includedTree = parser.parseFile(componentPath)
+  includedTree = parser.parseFile(componentPath, ctx.rootPath, ctx.params)
 
   importedComponents[name] = stringifier.apply(includedTree, [
     includedTree.result,
@@ -580,7 +580,7 @@ function stringifier (template, source, filePath, rootPath, params, returnObject
       params: params
     })
 
-    return returnObject ? tree : treeToString(tree).trim()
+    return returnObject ? tree : treeToString(tree, params).trim()
   }
 }
 
