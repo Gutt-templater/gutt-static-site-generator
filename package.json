@@ -2,7 +2,7 @@
   "name": "gutt-static-site-generator",
   "title": "Gutt static site generator",
   "CLISupport": false,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "",
   "main": "index.js",
   "scripts": {
