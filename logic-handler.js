@@ -109,7 +109,7 @@ function handleFunction (tree, ctx) {
       return str.replace('.', sprtr)
     case 'str_sub':
       if (params[2]) {
-        params[2] = params[2] < 0 ? params[0].length + params[2] - params[1] : params[1]
+        params[2] = params[2] < 0 ? params[0].length + params[2] - params[1] : params[2]
 
         return params[0].substr(params[1], params[2])
       }
