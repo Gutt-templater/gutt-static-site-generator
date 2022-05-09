@@ -66,7 +66,8 @@ module.exports = function treeToString (tree, params, ctx) {
 
     if (typeof item.text !== 'undefined') {
       if (params.prettify) {
-        var trimmedText = !ctx.inline ? item.text.trim() : !index ? String(item.text).trimLeft() : index === origin.length - 1 ? String(item.text).trimRight() : item.text
+        var text = String(item.text)
+        var trimmedText = !ctx.inline ? text.trim() : !index ? text.trimLeft() : index === origin.length - 1 ? text.trimRight() : text
 
         return (!ctx.inline ? makeIndent(ctx.indent) : '') + trimmedText
       }
