@@ -326,7 +326,13 @@ function handleComponent (node, ctx) {
   tagAttrs[fragment.id] = {}
 
   if (!node.isSingle) {
-    children = node.firstChild ? handleTemplate(node.firstChild, ctx) : []
+    children = (node.firstChild ? handleTemplate(node.firstChild, ctx) : []).filter(function (item) {
+      if (typeof item.text !== 'undefined') {
+        return String(item.text).trim().length
+      }
+
+      return true
+    })
   }
 
   attrsHandler(fragment, node.attrs, ctx)
