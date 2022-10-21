@@ -2,7 +2,7 @@
   "name": "gutt-static-site-generator",
   "title": "Gutt static site generator",
   "CLISupport": false,
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -19,12 +19,12 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "chai": "^3.5.0",
-    "chai-as-promised": "^6.0.0",
-    "mocha": "^3.2.0"
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^10.1.0"
   },
   "repository": "https://github.com/makingoff/gutt-static-site-generator",
   "dependencies": {
-    "gutt": "0.4.2"
+    "gutt": "^0.5.1"
   }
 }
