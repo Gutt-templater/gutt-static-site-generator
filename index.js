@@ -27,10 +27,6 @@ function linkNodeWithSwitchMarker (node) {
   switchMarker[node.id] = switchMarkerNone
 }
 
-function isFirstSwitchCase (node) {
-  return switchMarker[node.parentNode.id] === switchMarkerNone
-}
-
 function setSwitchMarkerHasCase (node) {
   switchMarker[node.parentNode.id] |= switchMarkerCase
 }
@@ -174,7 +170,6 @@ function handleTagAttributeApply (node) {
 function handleParam (node, ctx) {
   var params = extractValuesFromAttrs(node.attrs, ['name', 'value'])
   var name
-  var value
 
   if (typeof params.name === 'undefined') {
     throw new ParseError('<param /> must contain `name`-attribute', {
@@ -237,9 +232,7 @@ function handleForEachStatement (node, ctx) {
   var params = extractValuesFromAttrs(node.attrs, ['key', 'item', 'from'])
   var key
   var fromStatement = handleNode(params.from, ctx)
-  var keyStatement
   var content = []
-  var eachStatement
 
   if (!node.firstChild) return []
 
@@ -318,7 +311,6 @@ function handleImportStatement (node, ctx) {
 
 function handleComponent (node, ctx) {
   var children = ''
-  var attrs
   var fragment = new Tag('fragment')
 
   linkNodeWithAttrFragment(node, fragment)
@@ -391,7 +383,6 @@ function handleSwitchStatement (node, ctx) {
 
 function handleCaseStatement (node, ctx) {
   var params
-  var children
 
   if (node.parentNode.type !== 'tag' || (node.parentNode.name !== 'switch')) {
     throw new ParseError('<case /> must be at first level inside <switch />', {line: node.line, column: node.column})
@@ -445,6 +436,14 @@ function handleInlineSvg (node, ctx) {
   return handleTemplate(svg.result)
 }
 
+function handleSlotStatement(node, ctx) {
+  if (ctx.children.length) {
+    return ctx.children
+  }
+
+  return node.firstChild ? handleTemplate(node.firstChild, ctx) : []
+}
+
 function handleTag (node, ctx) {
   switch (node.name) {
     case 'inline-svg':
@@ -476,6 +475,9 @@ function handleTag (node, ctx) {
 
     case 'template':
       return handleTemplateStatement(node, ctx)
+
+    case 'slot':
+      return handleSlotStatement(node, ctx)
 
     default:
       if (typeof importedComponents[node.name] !== 'undefined') {
